@@ -4,8 +4,10 @@ const router = require('express').Router(),
 class Router {
     constructor() {
         router.get('/', Handlers.index);
-        router.get('/get', Handlers.get);
-        router.get('/post', Handlers.post);
+        router.get('/item', Handlers.get);
+        router.get('/item/:id', Handlers.get);
+        router.delete('/item/:id', Handlers.delete);
+        router.post('/item', Handlers.post);
 
         return router;
     }

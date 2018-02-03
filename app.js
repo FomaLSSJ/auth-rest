@@ -1,3 +1,5 @@
+global._ = require('lodash');
+
 const path = require('path'),
     express = require('express'),
     bodyParser = require('body-parser'),
@@ -21,6 +23,16 @@ class App {
 
     static get() {
         return app;
+    }
+
+    static isReady() {
+        return new Promise((resolve, reject) => {
+            setInterval(() => {
+                if (!Database.get()) return;
+                clearInterval();
+                return resolve(true);
+            }, 1000);
+        });
     }
 }
 

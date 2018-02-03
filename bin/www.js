@@ -1,7 +1,5 @@
 require('dotenv').config();
 
-global._ = require('lodash');
-
 const http = require('http'),
     port = (process.env.NODE_PORT || 3000),
     App = require('../app'),

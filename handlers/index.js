@@ -2,37 +2,51 @@ const Database = require('../modules/database');
 
 class Handlers {
     static index(req, res) {
-        return new Promise((resolve, reject) => {
-            return resolve(res.json({ success: true }));
-        });
+        return res.json({ success: true });
     }
 
     static get(req, res) {
-        return new Promise((resolve, reject) => {
-            return Database.get().collection('data').find().toArray()
-                .then(docs => resolve(res.status(200).send(docs)))
-                .catch(err => {
-                    console.log('[ Get Find error ]', err);
-                    return reject(res.sendStatus(500));
-                });
+        const { id } = req.params;
 
-            return resolve(res.json({ success: true }));
-        });
+        if (!_.isEmpty(id)) {
+            return Database.get().collection('data')
+                .findOne({ _id: Database.castObjectId(id) })
+                .then(doc => res.status(200).send(doc))
+                .catch(err => {
+                    console.log('[ Get Find Id error ]', err);
+                    return res.sendStatus(500);
+                });
+        }
+
+        return Database.get().collection('data').find().toArray()
+            .then(docs => res.status(200).send(docs))
+            .catch(err => {
+                console.log('[ Get Find error ]', err);
+                return res.sendStatus(500);
+            });
     }
 
     static post(req, res) {
-        return new Promise((resolve, reject) => {
-            const { title, text } = req.query;
+        const { title, text } = req.body;
 
-            if (!title || !text) return reject(res.sendStatus(500));
+        if (!title || !text) return res.sendStatus(500);
 
-            return Database.get().collection('data').insert({ title: title, text: text })
-                .then(result => resolve(res.sendStatus(200)))
-                .catch(err => {
-                    console.log('[ Post Insert error ]', err);
-                    return reject(res.sendStatus(500));
-                });
-        });
+        return Database.get().collection('data').insert({ title: title, text: text })
+            .then(result => res.sendStatus(200))
+            .catch(err => {
+                console.log('[ Post Insert error ]', err);
+                return res.sendStatus(500);
+            });
+    }
+
+    static delete(req, res) {
+        const { id } = req.params;
+
+        if (_.isEmpty(id)) return res.sendStatus(500);
+
+        return Database.get().collection('data').remove({ _id: Database.castObjectId(id) })
+            .then(() => res.sendStatus(200))
+            .catch(err => res.sendStatus(500));
     }
 }
 
