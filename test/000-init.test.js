@@ -18,8 +18,14 @@ before(() => {
 
 describe('Init', () => {
     it('Database clear', () => {
-        return Database.get().collection('data').remove({})
-            .then(({ result }) => assert.isTrue(!!result.ok))
-            .catch(err => console.error(err));
+        return Promise.all([
+            Database.get().collection('items').remove({}),
+            Database.get().collection('users').remove({})
+        ])
+        .then(([{ result: itemsResult }, { result: usersResult }]) => {
+            assert.isTrue(!!itemsResult.ok);
+            assert.isTrue(!!usersResult.ok);
+        })
+        .catch(err => console.error(err));
     });
 });

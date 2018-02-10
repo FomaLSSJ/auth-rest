@@ -15,6 +15,8 @@ class Database {
 
                 return database;
             })
+            .then(() => Database.createCollections())
+            .then(() => Database.createIndexes())
             .catch(err => console.error('[ Database error ]', err));
     }
 
@@ -24,6 +26,54 @@ class Database {
 
     static castObjectId(id) {
         return new mongodb.ObjectId(id);
+    }
+
+    static createCollections() {
+        return Promise.all([
+            database.createCollection('items', {
+                validator: {
+                    bsonType: 'object',
+                    required: ['title', 'text'],
+                    properties: {
+                        title: {
+                            bsonType: 'string'
+                        },
+                        text: {
+                            bsonType: 'string'
+                        }
+                    }
+                },
+                validationAction: 'warn',
+                validationLevel: 'strict'
+            }),
+            database.createCollection('users', {
+                validator: {
+                    bsonType: 'object',
+                    required: ['name', 'pass'],
+                    properties: {
+                        name: {
+                            name: {
+                                bsonType: 'string'
+                            },
+                            pass: {
+                                bsonType: 'string'
+                            },
+                            token: {
+                                bsonType: 'string'
+                            }
+                        }
+                    }
+                },
+                validationAction: 'warn',
+                validationLevel: 'strict'
+            })
+        ]);
+    }
+
+    static createIndexes() {
+        return Promise.all([
+            database.collection('users').createIndex({ 'name': 1 }, { unique: true })
+        ]);
     }
 }
 
